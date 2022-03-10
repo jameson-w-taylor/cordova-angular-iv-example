@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div id="container">
+    <div *ngIf="biometricsEnabled | async; else biometricsRequired">
+      <div *ngIf="hasExistingSession | async; else loginRequired">
+        <ion-button (click)="handleUnlock()">
+          Unlock
+          <ion-icon slot="end" name="finger-print"></ion-icon>
+        </ion-button>
+      </div>
+      <ng-template #loginRequired>
+        <ion-button (click)="handleLogin()">
+          Login
+          <ion-icon slot="end" name="log-in"></ion-icon>
+        </ion-button>
+      </ng-template>
+    </div>
+    <ng-template #biometricsRequired>
+      Please enable biometrics to continue
+    </ng-template>
+  </div>
+</ion-content>
