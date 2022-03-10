@@ -9,7 +9,7 @@ import { VaultService } from '../vault.service';
 })
 export class LoginPage {
   readonly sessionValue = 'someSessionValue';
-  biometricsEnabled = this.vault.isBiometricsEnabled();
+  biometricsEnabled$ = this.vault.isBiometricsEnabled$;
   hasExistingSession = this.vault.hasExistingSession();
 
   constructor(private vault: VaultService, private router: Router) {}

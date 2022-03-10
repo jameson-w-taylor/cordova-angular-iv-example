@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import {
   Vault,
   Device,
@@ -8,6 +8,7 @@ import {
   IdentityVaultConfig,
 } from '@ionic-enterprise/identity-vault';
 import { Platform } from '@ionic/angular';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 const dataKey = 'session';
 const config: IdentityVaultConfig = {
@@ -22,21 +23,29 @@ export interface VaultServiceState {
 
 @Injectable({ providedIn: 'root' })
 export class VaultService {
+  private isBiometricsEnabledSubj = new BehaviorSubject<boolean>(false);
+  private vault: Vault | BrowserVault;
   public state: VaultServiceState = {
     session: '',
   };
+  public get isBiometricsEnabled$(): Observable<boolean> {
+    return this.isBiometricsEnabledSubj.asObservable();
+  }
 
-  vault: Vault | BrowserVault;
-
-  constructor(private platform: Platform) {}
+  constructor(private platform: Platform, private ngZone: NgZone) {}
 
   async init() {
     await this.platform.ready();
     this.vault = this.platform.is('hybrid') ? new Vault(config) : new BrowserVault(config);
-  }
 
-  async isBiometricsEnabled(): Promise<boolean> {
-    return Device.isBiometricsEnabled();
+    const isBiometricsEnabled = await Device.isBiometricsEnabled();
+    this.isBiometricsEnabledSubj.next(isBiometricsEnabled);
+    this.platform.resume.subscribe(() => {
+      this.ngZone.run(async () => {
+        const isEnabled = await Device.isBiometricsEnabled();
+        this.isBiometricsEnabledSubj.next(isEnabled);
+      });
+    });
   }
 
   async hasExistingSession(): Promise<boolean> {

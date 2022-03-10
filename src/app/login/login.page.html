@@ -6,7 +6,7 @@
 
 <ion-content>
   <div id="container">
-    <div *ngIf="biometricsEnabled | async; else biometricsRequired">
+    <div *ngIf="biometricsEnabled$ | async; else biometricsRequired">
       <div *ngIf="hasExistingSession | async; else loginRequired">
         <ion-button (click)="handleUnlock()">
           Unlock
